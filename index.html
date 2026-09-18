@@ -4,80 +4,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>USBL League Stats & Reports</title>
+    <title>USBL Major League & Statcast Analytics</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for Interactive Baseball Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header class="navbar">
-        <div class="nav-container">
-            <div class="brand">
-                <span class="logo-icon">⚾</span>
-                <span class="brand-name">USBL League Dashboard</span>
-                <span class="season-badge">2017 Season</span>
-            </div>
-            <nav class="nav-tabs">
-                <button class="tab-btn active" data-tab="standings">Standings</button>
-                <button class="tab-btn" data-tab="batting">Batting Leaders</button>
-                <button class="tab-btn" data-tab="pitching">Pitching Leaders</button>
-                <button class="tab-btn" data-tab="team-stats">Team Stats</button>
-            </nav>
+        <div class="logo">
+            <span class="badge">USBL</span> Major League & Statcast Analytics
         </div>
+        <nav class="nav-links">
+            <button class="nav-btn active" onclick="switchTab('standings')">Standings</button>
+            <button class="nav-btn" onclick="switchTab('batting')">Batting Leaders</button>
+            <button class="nav-btn" onclick="switchTab('pitching')">Pitching Leaders</button>
+            <button class="nav-btn" onclick="switchTab('statcast')">🔥 Statcast & EV</button>
+            <button class="nav-btn" onclick="switchTab('visualizations')">📊 Graphs & Charts</button>
+            <button class="nav-btn" onclick="switchTab('matchups')">⚔️ Batter vs Pitcher</button>
+        </nav>
     </header>
 
-    <main class="main-content">
-        <div class="search-bar-container">
-            <input type="text" id="playerSearch" placeholder="🔍 Search players, teams, or stats...">
+    <main class="container">
+        <!-- GLOBAL SEARCH BAR -->
+        <div class="search-section">
+            <input type="text" id="globalSearch" placeholder="🔍 Search player, team, or stat..." onkeyup="filterTables()">
         </div>
 
-        <!-- Standings Section -->
-        <section id="standings" class="tab-content active">
-            <div class="section-header">
-                <h2>League Standings</h2>
-                <p>USBL Major League Standings & Divisional Rankings</p>
-            </div>
-            <div id="standingsContainer" class="table-card">
-                <div class="loading">Loading standings data...</div>
-            </div>
+        <!-- TAB 1: STANDINGS -->
+        <section id="tab-standings" class="tab-content active">
+            <h2>League Standings</h2>
+            <div id="standingsContainer" class="grid-2"></div>
         </section>
 
-        <!-- Batting Leaders Section -->
-        <section id="batting" class="tab-content">
+        <!-- TAB 2: BATTING LEADERS WITH SPLITS -->
+        <section id="tab-batting" class="tab-content">
             <div class="section-header">
                 <h2>Batting Leaders</h2>
-                <p>Top Hitters by AVG, HR, RBI, OPS, and WAR</p>
+                <div class="filter-group">
+                    <label>Split Filter:</label>
+                    <select id="battingSplitSelect" onchange="renderBattingLeaders()">
+                        <option value="overall">Overall / Full Season</option>
+                        <option value="vsl">vs. Left-Handed Pitchers (vs LHP)</option>
+                        <option value="vsr">vs. Right-Handed Pitchers (vs RHP)</option>
+                        <option value="home">Home Games</option>
+                        <option value="away">Road / Away Games</option>
+                    </select>
+                </div>
             </div>
-            <div id="battingContainer" class="table-card">
-                <div class="loading">Loading batting data...</div>
-            </div>
+            <div id="battingLeadersContainer" class="grid-3"></div>
         </section>
 
-        <!-- Pitching Leaders Section -->
-        <section id="pitching" class="tab-content">
+        <!-- TAB 3: PITCHING LEADERS WITH SPLITS -->
+        <section id="tab-pitching" class="tab-content">
             <div class="section-header">
                 <h2>Pitching Leaders</h2>
-                <p>Top Pitchers by ERA, Wins, Strikeouts, Saves, and WHIP</p>
+                <div class="filter-group">
+                    <label>Split Filter:</label>
+                    <select id="pitchingSplitSelect" onchange="renderPitchingLeaders()">
+                        <option value="overall">Overall / Full Season</option>
+                        <option value="vsl">vs. Left-Handed Batters (vs LHB)</option>
+                        <option value="vsr">vs. Right-Handed Batters (vs RHB)</option>
+                        <option value="home">Home Starts</option>
+                        <option value="away">Road / Away Starts</option>
+                    </select>
+                </div>
             </div>
-            <div id="pitchingContainer" class="table-card">
-                <div class="loading">Loading pitching data...</div>
+            <div id="pitchingLeadersContainer" class="grid-3"></div>
+        </section>
+
+        <!-- TAB 4: STATCAST EXIT VELOCITY -->
+        <section id="tab-statcast" class="tab-content">
+            <h2>🔥 Statcast Exit Velocity & Hard-Hit Leaderboard</h2>
+            <p class="subtitle">Parsed directly from play-by-play game log exit velocity (MPH) tracking.</p>
+            <div class="statcast-summary-cards grid-4" id="statcastCards"></div>
+            <div class="card mt-4">
+                <h3>Top Exit Velocity Batted Balls (105+ MPH)</h3>
+                <div class="table-wrapper">
+                    <table id="statcastTable">
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Team</th>
+                                <th>Exit Velocity (MPH)</th>
+                                <th>Batted Ball Type</th>
+                                <th>Result</th>
+                                <th>Hard-Hit Rate (95+ MPH)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statcastTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
-        <!-- Team Stats Section -->
-        <section id="team-stats" class="tab-content">
-            <div class="section-header">
-                <h2>Team Overview & Statistics</h2>
-                <p>Comprehensive Team Performance Breakdown</p>
+        <!-- TAB 5: GRAPHS & BASEBALL-REFERENCE STYLE VISUALIZATIONS -->
+        <section id="tab-visualizations" class="tab-content">
+            <h2>📊 Interactive Player & Game Visualizations</h2>
+            
+            <div class="grid-2 mt-4">
+                <!-- CHART 1: SEASON BATTING AVERAGE & OPS TREND LINE -->
+                <div class="card">
+                    <h3>📈 Player Season Trajectory (162-Game Rolling AVG & OPS)</h3>
+                    <p class="card-subtitle">Track how a batter's average and OPS evolved game-by-game over the season.</p>
+                    <div class="filter-group mb-2">
+                        <select id="playerTrendSelect" onchange="updatePlayerTrendChart()">
+                            <option value="Nate Mahoney">Nate Mahoney (Armada)</option>
+                            <option value="Jesse Wilson">Jesse Wilson (Halos)</option>
+                            <option value="Dave Gordon">Dave Gordon (Armada)</option>
+                        </select>
+                    </div>
+                    <canvas id="trendChart"></canvas>
+                </div>
+
+                <!-- CHART 2: SPRAY CHART -->
+                <div class="card">
+                    <h3>🎯 Batted Ball Field Spray Chart</h3>
+                    <p class="card-subtitle">Location and contact quality for hits and outs on the diamond.</p>
+                    <canvas id="sprayChart"></canvas>
+                </div>
             </div>
-            <div id="teamStatsContainer" class="table-card">
-                <div class="loading">Loading team stats...</div>
+
+            <div class="grid-2 mt-4">
+                <!-- CHART 3: WIN PROBABILITY ADDED (WPA) GRAPH -->
+                <div class="card">
+                    <h3>⚾ In-Game Win Expectancy (WPA) Graph</h3>
+                    <p class="card-subtitle">Inning-by-inning win probability wave (Anaheim Halos vs Tampa Bay Armada).</p>
+                    <canvas id="wpaChart"></canvas>
+                </div>
+
+                <!-- CHART 4: EXIT VELOCITY DISTRIBUTION HISTOGRAM -->
+                <div class="card">
+                    <h3>🚀 Exit Velocity Distribution (MPH Bins)</h3>
+                    <p class="card-subtitle">Batted ball breakdown by hit speed category.</p>
+                    <canvas id="evDistChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: PITCHER VS HITTER MATCHUP ANALYZER -->
+        <section id="tab-matchups" class="tab-content">
+            <h2>⚔️ Pitcher vs. Hitter Head-to-Head Matchup Search</h2>
+            <p class="subtitle">Look up individual career and season stats for any pitcher against any batter.</p>
+            
+            <div class="card matchup-box">
+                <div class="matchup-inputs">
+                    <div class="input-group">
+                        <label>Select Pitcher:</label>
+                        <input type="text" id="pitcherInput" value="Mike Pearsall" placeholder="Enter pitcher name...">
+                    </div>
+                    <div class="vs-badge">VS</div>
+                    <div class="input-group">
+                        <label>Select Batter:</label>
+                        <input type="text" id="batterInput" value="Elmer Aguilera" placeholder="Enter batter name...">
+                    </div>
+                    <button class="btn-primary" onclick="lookupMatchup()">Analyze Matchup</button>
+                </div>
+
+                <div id="matchupResult" class="matchup-results mt-4"></div>
             </div>
         </section>
     </main>
-
-    <footer class="footer">
-        <p>USBL Baseball Simulation Dashboard &bull; Generated from OOTP 27 Almanac</p>
-    </footer>
 
     <script src="app.js"></script>
 </body>
