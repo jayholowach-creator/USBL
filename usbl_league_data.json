@@ -1,0 +1,149 @@
+{
+  "metadata": {
+    "league_name": "USBL Major League (3-Team Test Subset)",
+    "version": "29.0",
+    "source_directory": "C:\\Users\\johnh\\OneDrive\\Documents\\Out of the Park Developments\\OOTP Baseball 27\\saved_games\\Armada.lg\\news\\almanac_2017",
+    "target_teams": [
+      "Tampa Bay Armada",
+      "Brooklyn Bankers",
+      "New York Americans"
+    ],
+    "images_path": "images/",
+    "sprint_2_enabled": true
+  },
+  "standings": [
+    {
+      "Team": "New York Americans",
+      "W": "22",
+      "L": "14",
+      "PCT": ".611",
+      "GB": "3",
+      "Pyt.Rec": "22-14",
+      "Diff": "0",
+      "Home": "12-6",
+      "Away": "10-8",
+      "XInn": "0-2",
+      "1Run": "5-4",
+      "M#": "",
+      "Streak": "L1",
+      "Last10": "5-5",
+      "logo_url": "images/team_logos/new_york_americans.png",
+      "team_slug": "new_york_americans"
+    },
+    {
+      "Team": "Tampa Bay Armada",
+      "W": "19",
+      "L": "17",
+      "PCT": ".528",
+      "GB": "6",
+      "Pyt.Rec": "21-15",
+      "Diff": "-2",
+      "Home": "10-8",
+      "Away": "9-9",
+      "XInn": "3-4",
+      "1Run": "4-7",
+      "M#": "",
+      "Streak": "W2",
+      "Last10": "5-5",
+      "logo_url": "images/team_logos/tampa_bay_armada.png",
+      "team_slug": "tampa_bay_armada"
+    },
+    {
+      "Team": "Brooklyn Bankers",
+      "W": "11",
+      "L": "25",
+      "PCT": ".306",
+      "GB": "14",
+      "Pyt.Rec": "15-21",
+      "Diff": "-4",
+      "Home": "8-10",
+      "Away": "3-15",
+      "XInn": "2-4",
+      "1Run": "4-9",
+      "M#": "",
+      "Streak": "L2",
+      "Last10": "6-4",
+      "logo_url": "images/team_logos/brooklyn_bankers.png",
+      "team_slug": "brooklyn_bankers"
+    }
+  ],
+  "wildcard_standings": [
+    {
+      "Team": "New York Americans",
+      "W": "22",
+      "L": "14",
+      "PCT": ".611",
+      "GB": "3",
+      "Pyt.Rec": "22-14",
+      "Diff": "0",
+      "Home": "12-6",
+      "Away": "10-8",
+      "XInn": "0-2",
+      "1Run": "5-4",
+      "M#": "",
+      "Streak": "L1",
+      "Last10": "5-5",
+      "logo_url": "images/team_logos/new_york_americans.png",
+      "team_slug": "new_york_americans"
+    },
+    {
+      "Team": "Tampa Bay Armada",
+      "W": "19",
+      "L": "17",
+      "PCT": ".528",
+      "GB": "6",
+      "Pyt.Rec": "21-15",
+      "Diff": "-2",
+      "Home": "10-8",
+      "Away": "9-9",
+      "XInn": "3-4",
+      "1Run": "4-7",
+      "M#": "",
+      "Streak": "W2",
+      "Last10": "5-5",
+      "logo_url": "images/team_logos/tampa_bay_armada.png",
+      "team_slug": "tampa_bay_armada"
+    },
+    {
+      "Team": "Brooklyn Bankers",
+      "W": "11",
+      "L": "25",
+      "PCT": ".306",
+      "GB": "14",
+      "Pyt.Rec": "15-21",
+      "Diff": "-4",
+      "Home": "8-10",
+      "Away": "3-15",
+      "XInn": "2-4",
+      "1Run": "4-9",
+      "M#": "",
+      "Streak": "L2",
+      "Last10": "6-4",
+      "logo_url": "images/team_logos/brooklyn_bankers.png",
+      "team_slug": "brooklyn_bankers"
+    }
+  ],
+  "batting_leaders": [],
+  "pitching_leaders": [],
+  "teams": [
+    "Tampa Bay Armada",
+    "Brooklyn Bankers",
+    "New York Americans"
+  ],
+  "statcast_data": {
+    "leaderboard": [],
+    "spray_chart": [],
+    "summary": {}
+  },
+  "transactions": [],
+  "injured_list": [],
+  "free_agents": [],
+  "history_awards": {
+    "champions": [],
+    "mvp_winners": [],
+    "cy_young_winners": [],
+    "roty_winners": []
+  },
+  "top_prospects": [],
+  "team_details": {}
+}
