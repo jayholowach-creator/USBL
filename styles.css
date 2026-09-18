@@ -15,7 +15,7 @@ body {
 .navbar {
     background-color: #1e293b;
     border-bottom: 1px solid #334155;
-    padding: 0.8rem 1.5rem;
+    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -33,7 +33,7 @@ body {
 }
 
 .logo {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #38bdf8;
 }
@@ -52,44 +52,39 @@ body {
     align-items: center;
     gap: 8px;
     background-color: #0f172a;
-    padding: 4px 10px;
-    border-radius: 6px;
-    border: 1px solid #0284c7;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #334155;
 }
 
 .league-selector-wrapper label {
-    font-size: 0.75rem;
-    font-weight: 800;
+    font-size: 0.8rem;
+    font-weight: 700;
     color: #38bdf8;
-    letter-spacing: 0.5px;
 }
 
 .league-selector-wrapper select {
     background: transparent;
-    color: white;
+    color: #f8fafc;
     border: none;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     outline: none;
 }
 
-.league-selector-wrapper select option {
-    background-color: #1e293b;
-    color: white;
-}
-
 .nav-links {
     display: flex;
-    gap: 6px;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .nav-btn {
     background: transparent;
     border: none;
     color: #94a3b8;
-    padding: 8px 14px;
-    font-size: 0.9rem;
+    padding: 8px 16px;
+    font-size: 0.95rem;
     font-weight: 600;
     border-radius: 6px;
     cursor: pointer;
@@ -108,7 +103,7 @@ body {
 
 .container {
     max-width: 1300px;
-    margin: 1.5rem auto;
+    margin: 2rem auto;
     padding: 0 1rem;
 }
 
@@ -166,9 +161,10 @@ body {
     margin-bottom: 0.25rem;
 }
 
-.card-subtitle, .subtitle-sm {
+.card-subtitle {
     color: #94a3b8;
     font-size: 0.85rem;
+    margin-bottom: 1rem;
 }
 
 .section-header {
@@ -206,23 +202,21 @@ tr:hover {
     background-color: #2b394e;
 }
 
-.team-link {
-    color: #38bdf8;
-    text-decoration: none;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.team-link:hover {
-    text-decoration: underline;
-    color: #7dd3fc;
+.team-cell, .player-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .team-logo-small {
     width: 24px;
     height: 24px;
-    vertical-align: middle;
-    margin-right: 8px;
+    object-fit: contain;
+}
+
+.team-logo-medium {
+    width: 36px;
+    height: 36px;
     object-fit: contain;
 }
 
@@ -230,37 +224,60 @@ tr:hover {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    vertical-align: middle;
-    margin-right: 8px;
     object-fit: cover;
     background-color: #334155;
 }
 
+.team-link {
+    color: #38bdf8;
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.team-link:hover {
+    color: #7dd3fc;
+}
+
+.btn-primary {
+    background-color: #0284c7;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #0369a1;
+}
+
+/* MODAL WINDOW STYLES */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(15, 23, 42, 0.85);
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(4px);
-    z-index: 1000;
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 1rem;
+    align-items: center;
+    z-index: 1000;
 }
 
-.modal-content {
+.modal-card {
     background-color: #1e293b;
-    border: 1px solid #0284c7;
+    border: 1px solid #334155;
     border-radius: 12px;
-    width: 100%;
+    width: 90%;
     max-width: 950px;
-    max-height: 90vh;
+    max-height: 85vh;
     overflow-y: auto;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
     padding: 1.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
 .modal-header {
@@ -272,34 +289,28 @@ tr:hover {
     margin-bottom: 1rem;
 }
 
-.team-modal-title {
+.modal-title-group {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.team-logo-large {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-}
-
 .close-btn {
-    background: #ef4444;
-    color: white;
+    background: transparent;
     border: none;
-    padding: 6px 14px;
-    border-radius: 6px;
+    color: #94a3b8;
+    font-size: 1.5rem;
     cursor: pointer;
-    font-weight: 700;
 }
 
-.close-btn:hover { background: #dc2626; }
+.close-btn:hover {
+    color: #ef4444;
+}
 
 .modal-nav {
     display: flex;
     gap: 8px;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     border-bottom: 1px solid #334155;
     padding-bottom: 8px;
 }
@@ -308,7 +319,8 @@ tr:hover {
     background: transparent;
     border: none;
     color: #94a3b8;
-    padding: 8px 14px;
+    padding: 6px 14px;
+    font-size: 0.9rem;
     font-weight: 600;
     border-radius: 6px;
     cursor: pointer;
@@ -319,81 +331,53 @@ tr:hover {
     color: white;
 }
 
-.modal-sub-content { display: none; }
-.modal-sub-content.active { display: block; }
+.modal-sub-content {
+    display: none;
+}
 
-.btn-toggle {
-    background: #0f172a;
-    color: #94a3b8;
-    border: 1px solid #334155;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
+.modal-sub-content.active {
+    display: block;
+}
+
+.matchup-inputs {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.input-group label {
+    display: block;
     font-size: 0.85rem;
+    color: #94a3b8;
+    margin-bottom: 4px;
 }
 
-.btn-toggle.active {
-    background: #0284c7;
-    color: white;
-    border-color: #0284c7;
-}
-
-.diamond-container {
+.input-group input {
     background-color: #0f172a;
     border: 1px solid #334155;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-top: 1rem;
-    position: relative;
-    min-height: 420px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.diamond-field {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    height: 380px;
-    background: radial-gradient(circle at 50% 80%, #15803d 0%, #064e3b 70%);
-    border-radius: 50% 50% 10px 10px;
-    border: 2px solid #22c55e;
-}
-
-.pos-card {
-    position: absolute;
-    background: rgba(30, 41, 59, 0.95);
-    border: 1px solid #38bdf8;
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 0.8rem;
     color: white;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
-    min-width: 110px;
-    text-align: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.95rem;
 }
 
-.pos-label {
-    display: inline-block;
-    background: #0284c7;
+.vs-badge {
+    background-color: #ef4444;
     color: white;
     font-weight: 800;
-    font-size: 0.7rem;
-    padding: 1px 5px;
-    border-radius: 3px;
-    margin-bottom: 2px;
+    padding: 6px 12px;
+    border-radius: 50%;
+    font-size: 0.9rem;
 }
 
-.pos-cf { top: 15px; left: 50%; transform: translateX(-50%); }
-.pos-lf { top: 55px; left: 12%; }
-.pos-rf { top: 55px; right: 12%; }
-.pos-ss { top: 155px; left: 28%; }
-.pos-2b { top: 155px; right: 28%; }
-.pos-3b { top: 235px; left: 8%; }
-.pos-1b { top: 235px; right: 8%; }
-.pos-c  { bottom: 15px; left: 50%; transform: translateX(-50%); }
+.no-data {
+    color: #94a3b8;
+    font-style: italic;
+    padding: 1rem 0;
+}
 
+.mt-2 { margin-top: 0.5rem; }
 .mt-4 { margin-top: 1.5rem; }
-.mb-3 { margin-bottom: 1rem; }
+.mb-2 { margin-bottom: 0.75rem; }
 .subtitle { color: #94a3b8; margin-bottom: 1rem; }
