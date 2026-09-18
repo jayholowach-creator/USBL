@@ -4,73 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>USBL Major League & Statcast Analytics</title>
+    <title>USBL Major League Analytics Dashboard</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Chart.js for Interactive Baseball Visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header class="navbar">
         <div class="logo-group">
             <div class="logo">
-                <span class="badge">USBL</span> Analytics Dashboard
-            </div>
-            <!-- HEADER LEAGUE SELECTOR DROPDOWN -->
-            <div class="league-selector-wrapper">
-                <label for="leagueSelect">ACTIVE LEAGUE:</label>
-                <select id="leagueSelect" onchange="handleLeagueChange()">
-                    <option value="USBL (Major League)" selected>USBL (Major League)</option>
-                    <option value="Triple-A (AAA)">Triple-A (AAA)</option>
-                    <option value="Double-A (AA)">Double-A (AA)</option>
-                    <option value="Class-A (A)">Class-A (A)</option>
-                    <option value="Rookie League">Rookie League</option>
-                </select>
+                <span class="badge">USBL</span> Major League Analytics
             </div>
         </div>
 
         <nav class="nav-links">
-            <button class="nav-btn active" onclick="switchTab('standings', event)">Standings</button>
+            <button class="nav-btn active" onclick="switchTab('standings', event)">Standings & Wild Card</button>
             <button class="nav-btn" onclick="switchTab('batting', event)">Batting Leaders</button>
             <button class="nav-btn" onclick="switchTab('pitching', event)">Pitching Leaders</button>
             <button class="nav-btn" onclick="switchTab('statcast', event)">🔥 Statcast & EV</button>
+            <button class="nav-btn" onclick="switchTab('transactions', event)">📰 Transactions & Free Agents</button>
+            <button class="nav-btn" onclick="switchTab('history', event)">🏆 History & Awards</button>
+            <button class="nav-btn" onclick="switchTab('prospects', event)">⭐ Top Prospects</button>
             <button class="nav-btn" onclick="switchTab('visualizations', event)">📊 Graphs & Charts</button>
-            <button class="nav-btn" onclick="switchTab('matchups', event)">⚔️ Batter vs Pitcher</button>
+            <button class="nav-btn" onclick="switchTab('matchups', event)">⚔️ Matchups</button>
         </nav>
     </header>
 
     <main class="container">
         <!-- GLOBAL SEARCH BAR -->
         <div class="search-section">
-            <input type="text" id="globalSearch" placeholder="🔍 Search player, team, or stat..." onkeyup="filterTables()">
+            <input type="text" id="globalSearch" placeholder="🔍 Search player, team, trade, or stat..." onkeyup="filterTables()">
         </div>
 
-        <!-- TAB 1: STANDINGS -->
+        <!-- TAB 1: STANDINGS & WILD CARD -->
         <section id="tab-standings" class="tab-content active">
-            <h2 id="standingsTitle">League Standings — USBL (Major League)</h2>
-            <div id="standingsContainer"></div>
+            <h2>USBL Major League Standings & Playoff Race</h2>
+            <div class="modal-nav mt-2">
+                <button class="modal-tab-btn active" onclick="switchStandingsSubTab('division')">Division Standings</button>
+                <button class="modal-tab-btn" onclick="switchStandingsSubTab('wildcard')">Wild Card Race</button>
+            </div>
+            <div id="standingsContainer" class="grid-1 mt-2"></div>
         </section>
 
         <!-- TAB 2: BATTING LEADERS -->
         <section id="tab-batting" class="tab-content">
-            <div class="section-header">
-                <h2 id="battingTitle">Batting Leaders — USBL (Major League)</h2>
-            </div>
-            <div id="battingLeadersContainer" class="grid-3"></div>
+            <h2>Major League Batting Leaders</h2>
+            <div id="battingLeadersContainer" class="mt-2"></div>
         </section>
 
         <!-- TAB 3: PITCHING LEADERS -->
         <section id="tab-pitching" class="tab-content">
-            <div class="section-header">
-                <h2 id="pitchingTitle">Pitching Leaders — USBL (Major League)</h2>
-            </div>
-            <div id="pitchingLeadersContainer" class="grid-3"></div>
+            <h2>Major League Pitching Leaders</h2>
+            <div id="pitchingLeadersContainer" class="mt-2"></div>
         </section>
 
-        <!-- TAB 4: STATCAST EXIT VELOCITY -->
+        <!-- TAB 4: STATCAST & EV -->
         <section id="tab-statcast" class="tab-content">
-            <h2>🔥 Statcast Exit Velocity & Batted Ball Leaderboard</h2>
-            <p class="subtitle">Parsed directly from play-by-play game log exit velocity (MPH) tracking.</p>
-            <div class="statcast-summary-cards grid-4" id="statcastCards"></div>
+            <h2>🔥 Statcast Exit Velocity & Hard-Hit Leaderboard</h2>
+            <div id="statcastCards" class="grid-4 mt-2"></div>
             <div class="card mt-4">
                 <h3>Top Exit Velocity Batted Balls</h3>
                 <div class="table-wrapper">
@@ -79,9 +69,9 @@
                             <tr>
                                 <th>Player</th>
                                 <th>Exit Velocity</th>
-                                <th>Batted Ball Type</th>
+                                <th>Trajectory</th>
                                 <th>Distance</th>
-                                <th>Classification</th>
+                                <th>Hard-Hit Status</th>
                             </tr>
                         </thead>
                         <tbody id="statcastTableBody"></tbody>
@@ -90,57 +80,106 @@
             </div>
         </section>
 
-        <!-- TAB 5: VISUALIZATIONS -->
+        <!-- TAB 5: TRANSACTIONS, TRADES & FREE AGENTS -->
+        <section id="tab-transactions" class="tab-content">
+            <h2>📰 League Transactions, Trades & Available Free Agents</h2>
+            <div class="modal-nav mt-2">
+                <button class="modal-tab-btn active" onclick="switchTxSubTab('trades')">Recent Trades & Signings</button>
+                <button class="modal-tab-btn" onclick="switchTxSubTab('free_agents')">Available Free Agents</button>
+                <button class="modal-tab-btn" onclick="switchTxSubTab('injured')">Injured List (IL)</button>
+            </div>
+
+            <!-- SUB-TAB 1: TRADES -->
+            <div id="tx-sub-trades" class="tx-sub-content active mt-2">
+                <div class="card">
+                    <h3>Recent Transactions & Waiver Claims</h3>
+                    <div id="transactionsContainer" class="mt-2"></div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB 2: FREE AGENTS -->
+            <div id="tx-sub-free_agents" class="tx-sub-content mt-2">
+                <div class="card">
+                    <h3>Available Free Agents Table</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Player</th>
+                                    <th>POS</th>
+                                    <th>Age</th>
+                                    <th>Prev Team</th>
+                                    <th>Expected Salary</th>
+                                    <th>Ratings / Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="freeAgentsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB 3: INJURED LIST -->
+            <div id="tx-sub-injured" class="tx-sub-content mt-2">
+                <div class="card">
+                    <h3>Injured List (IL) Status</h3>
+                    <div id="injuredListContainer" class="mt-2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: HISTORY & AWARDS -->
+        <section id="tab-history" class="tab-content">
+            <h2>🏆 League History, Champions & Award Winners</h2>
+            <div class="grid-2 mt-2">
+                <div class="card">
+                    <h3>World Series Champions</h3>
+                    <div id="championsContainer" class="mt-2"></div>
+                </div>
+                <div class="card">
+                    <h3>Most Valuable Player (MVP) Winners</h3>
+                    <div id="mvpContainer" class="mt-2"></div>
+                </div>
+                <div class="card mt-4">
+                    <h3>Cy Young Award Winners</h3>
+                    <div id="cyYoungContainer" class="mt-2"></div>
+                </div>
+                <div class="card mt-4">
+                    <h3>Rookie of the Year Winners</h3>
+                    <div id="rotyContainer" class="mt-2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 7: TOP PROSPECTS -->
+        <section id="tab-prospects" class="tab-content">
+            <h2>⭐ League Top Prospects</h2>
+            <div id="prospectsContainer" class="mt-2"></div>
+        </section>
+
+        <!-- TAB 8: VISUALIZATIONS -->
         <section id="tab-visualizations" class="tab-content">
             <h2>📊 Interactive Player & Game Visualizations</h2>
-            
             <div class="grid-2 mt-4">
-                <!-- CHART 1: SEASON TREND -->
                 <div class="card">
                     <h3>📈 Player Season Trajectory</h3>
-                    <p class="card-subtitle">Track player performance trends over the course of the season.</p>
                     <div class="filter-group mb-2">
                         <select id="playerTrendSelect" onchange="updatePlayerTrendChart()">
                             <option value="">-- Select Player --</option>
                         </select>
                     </div>
                     <canvas id="trendChart"></canvas>
-                    <div id="trendChartNote" class="no-data mt-2" style="display:none;">No game-by-game trend logs found for this player in the extracted dataset.</div>
                 </div>
-
-                <!-- CHART 2: SPRAY CHART -->
                 <div class="card">
-                    <h3>🎯 Batted Ball Field Spray Chart</h3>
-                    <p class="card-subtitle">Location and contact quality for hits on the diamond.</p>
+                    <h3>🎯 Batted Ball Spray Chart</h3>
                     <canvas id="sprayChart"></canvas>
-                    <div id="sprayChartNote" class="no-data mt-2" style="display:none;">No spray chart distance coordinates available in the current dataset.</div>
-                </div>
-            </div>
-
-            <div class="grid-2 mt-4">
-                <!-- CHART 3: WIN PROBABILITY ADDED -->
-                <div class="card">
-                    <h3>⚾ In-Game Win Expectancy (WPA) Graph</h3>
-                    <p class="card-subtitle">Inning-by-inning win probability wave from play-by-play game logs.</p>
-                    <canvas id="wpaChart"></canvas>
-                    <div id="wpaChartNote" class="no-data mt-2" style="display:none;">No in-game WPA win probability logs found in the current dataset.</div>
-                </div>
-
-                <!-- CHART 4: EXIT VELOCITY HISTOGRAM -->
-                <div class="card">
-                    <h3>🚀 Exit Velocity Distribution</h3>
-                    <p class="card-subtitle">Batted ball breakdown by hit speed category.</p>
-                    <canvas id="evDistChart"></canvas>
-                    <div id="evDistChartNote" class="no-data mt-2" style="display:none;">No exit velocity distribution data available in the current dataset.</div>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 6: PITCHER VS HITTER MATCHUP ANALYZER -->
+        <!-- TAB 9: MATCHUPS -->
         <section id="tab-matchups" class="tab-content">
-            <h2>⚔️ Pitcher vs. Hitter Head-to-Head Matchup Search</h2>
-            <p class="subtitle">Look up head-to-head stats for any pitcher against any batter in the extracted dataset.</p>
-            
+            <h2>⚔️ Pitcher vs. Hitter Head-to-Head Matchup</h2>
             <div class="card matchup-box">
                 <div class="matchup-inputs">
                     <div class="input-group">
@@ -154,7 +193,6 @@
                     </div>
                     <button class="btn-primary" onclick="lookupMatchup()">Analyze Matchup</button>
                 </div>
-
                 <div id="matchupResult" class="matchup-results mt-4"></div>
             </div>
         </section>
@@ -171,11 +209,13 @@
                 <button class="close-btn" onclick="closeTeamSummary()">✕</button>
             </div>
 
-            <!-- MODAL SUB-TABS -->
             <div class="modal-nav">
-                <button class="modal-tab-btn active" onclick="switchModalTab('lineups')">📋 Roster & Lineups</button>
+                <button class="modal-tab-btn active" onclick="switchModalTab('lineups')">📋 Lineups</button>
                 <button class="modal-tab-btn" onclick="switchModalTab('pitching')">⚾ Pitching Staff</button>
-                <button class="modal-tab-btn" onclick="switchModalTab('defense')">🛡️ Defensive Ratings</button>
+                <button class="modal-tab-btn" onclick="switchModalTab('defense')">🛡️ 2D Diamond</button>
+                <button class="modal-tab-btn" onclick="switchModalTab('schedule')">📅 Schedule</button>
+                <button class="modal-tab-btn" onclick="switchModalTab('financials')">💰 Financials</button>
+                <button class="modal-tab-btn" onclick="switchModalTab('prospects')">⭐ Prospects</button>
             </div>
 
             <!-- SUB-TAB 1: LINEUPS -->
@@ -185,14 +225,15 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>POS</th>
                                 <th>Player</th>
+                                <th>AB</th>
+                                <th>H</th>
+                                <th>HR</th>
+                                <th>RBI</th>
                                 <th>AVG</th>
                                 <th>OBP</th>
                                 <th>SLG</th>
                                 <th>OPS</th>
-                                <th>HR</th>
-                                <th>RBI</th>
                             </tr>
                         </thead>
                         <tbody id="lineupTableBody"></tbody>
@@ -222,24 +263,130 @@
                 </div>
             </div>
 
-            <!-- SUB-TAB 3: DEFENSIVE RATINGS -->
+            <!-- SUB-TAB 3: 2D DEFENSIVE DIAMOND -->
             <div id="modal-sub-defense" class="modal-sub-content">
-                <h3>Defensive Metrics & Ratings</h3>
+                <h3>🛡️ 2D Interactive Field & Defensive Ratings</h3>
+                <div class="diamond-field-wrapper mt-2">
+                    <div class="baseball-field">
+                        <div class="field-pos pos-c" id="field-pos-c"><span class="pos-label">C</span><span class="pos-player" id="def-c-name">Catcher</span></div>
+                        <div class="field-pos pos-1b" id="field-pos-1b"><span class="pos-label">1B</span><span class="pos-player" id="def-1b-name">1st Base</span></div>
+                        <div class="field-pos pos-2b" id="field-pos-2b"><span class="pos-label">2B</span><span class="pos-player" id="def-2b-name">2nd Base</span></div>
+                        <div class="field-pos pos-3b" id="field-pos-3b"><span class="pos-label">3B</span><span class="pos-player" id="def-3b-name">3rd Base</span></div>
+                        <div class="field-pos pos-ss" id="field-pos-ss"><span class="pos-label">SS</span><span class="pos-player" id="def-ss-name">Shortstop</span></div>
+                        <div class="field-pos pos-lf" id="field-pos-lf"><span class="pos-label">LF</span><span class="pos-player" id="def-lf-name">Left Field</span></div>
+                        <div class="field-pos pos-cf" id="field-pos-cf"><span class="pos-label">CF</span><span class="pos-player" id="def-cf-name">Center Field</span></div>
+                        <div class="field-pos pos-rf" id="field-pos-rf"><span class="pos-label">RF</span><span class="pos-player" id="def-rf-name">Right Field</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB 4: SCHEDULE -->
+            <div id="modal-sub-schedule" class="modal-sub-content">
+                <h3>Team Schedule & Game Results</h3>
                 <div class="table-wrapper mt-2">
                     <table>
                         <thead>
                             <tr>
-                                <th>POS</th>
-                                <th>Player</th>
-                                <th>Zone Rating (ZR)</th>
-                                <th>Fielding % (FLD%)</th>
-                                <th>Errors</th>
+                                <th>Date</th>
+                                <th>Opponent</th>
+                                <th>Result</th>
+                                <th>Win Pitcher</th>
+                                <th>Loss Pitcher</th>
+                                <th>Save</th>
+                                <th>Box Score</th>
                             </tr>
                         </thead>
-                        <tbody id="defenseTableBody"></tbody>
+                        <tbody id="scheduleTableBody"></tbody>
                     </table>
                 </div>
             </div>
+
+            <!-- SUB-TAB 5: FINANCIALS -->
+            <div id="modal-sub-financials" class="modal-sub-content">
+                <h3>Team Financial Overview</h3>
+                <div id="financialSummaryCards" class="grid-4 mt-2"></div>
+                <h4 class="mt-4">Active Contracts</h4>
+                <div class="table-wrapper mt-2">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>POS</th>
+                                <th>Salary</th>
+                                <th>Term</th>
+                            </tr>
+                        </thead>
+                        <tbody id="financialContractsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SUB-TAB 6: PROSPECTS -->
+            <div id="modal-sub-prospects" class="modal-sub-content">
+                <h3>Top Organizational Prospects</h3>
+                <div class="table-wrapper mt-2">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Prospect Name</th>
+                                <th>POS</th>
+                                <th>ETA</th>
+                                <th>Potential Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamProspectsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PLAYER PROFILE CARD MODAL -->
+    <div id="playerProfileModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <img id="playerHeadshot" src="" class="player-headshot" style="width:50px;height:50px;" onerror="this.src='images/players/default.png';">
+                    <div>
+                        <h2 id="playerName">Player Name</h2>
+                        <p id="playerTeamPos" style="color:#94a3b8;font-size:0.9rem;">Team • Position</p>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closePlayerProfile()">✕</button>
+            </div>
+
+            <div id="playerCardHighlightGrid" class="grid-4 mt-4"></div>
+
+            <div class="card mt-4">
+                <h3>Full Season Statistics</h3>
+                <div class="table-wrapper mt-2">
+                    <table>
+                        <thead id="playerStatsHeader"></thead>
+                        <tbody id="playerStatsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card mt-4" style="background:#0f172a;border-color:#334155;">
+                <h4 style="color:#38bdf8;">📖 Standard Baseball Stat Legend</h4>
+                <div class="grid-2 mt-2" style="font-size:0.85rem;color:#94a3b8;">
+                    <div><b>AB:</b> At Bats | <b>H:</b> Hits | <b>HR:</b> Home Runs | <b>RBI:</b> Runs Batted In | <b>SB:</b> Stolen Bases</div>
+                    <div><b>AVG:</b> Batting Average | <b>OBP:</b> On-Base % | <b>SLG:</b> Slugging % | <b>OPS:</b> On-Base + Slugging</div>
+                    <div><b>ERA:</b> Earned Run Average | <b>IP:</b> Innings Pitched | <b>WHIP:</b> Walks+Hits/IP | <b>K/9:</b> Strikeouts/9</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME BOX SCORE MODAL -->
+    <div id="boxScoreModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="boxScoreTitle">Game Box Score</h2>
+                <button class="close-btn" onclick="closeBoxScore()">✕</button>
+            </div>
+            <div id="boxScoreContent" class="mt-4"></div>
         </div>
     </div>
 
