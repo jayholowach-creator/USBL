@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>USBL League Stats & Reports</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="brand">
+                <span class="logo-icon">⚾</span>
+                <span class="brand-name">USBL League Dashboard</span>
+                <span class="season-badge">2017 Season</span>
+            </div>
+            <nav class="nav-tabs">
+                <button class="tab-btn active" data-tab="standings">Standings</button>
+                <button class="tab-btn" data-tab="batting">Batting Leaders</button>
+                <button class="tab-btn" data-tab="pitching">Pitching Leaders</button>
+                <button class="tab-btn" data-tab="team-stats">Team Stats</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="search-bar-container">
+            <input type="text" id="playerSearch" placeholder="🔍 Search players, teams, or stats...">
+        </div>
+
+        <!-- Standings Section -->
+        <section id="standings" class="tab-content active">
+            <div class="section-header">
+                <h2>League Standings</h2>
+                <p>USBL Major League Standings & Divisional Rankings</p>
+            </div>
+            <div id="standingsContainer" class="table-card">
+                <div class="loading">Loading standings data...</div>
+            </div>
+        </section>
+
+        <!-- Batting Leaders Section -->
+        <section id="batting" class="tab-content">
+            <div class="section-header">
+                <h2>Batting Leaders</h2>
+                <p>Top Hitters by AVG, HR, RBI, OPS, and WAR</p>
+            </div>
+            <div id="battingContainer" class="table-card">
+                <div class="loading">Loading batting data...</div>
+            </div>
+        </section>
+
+        <!-- Pitching Leaders Section -->
+        <section id="pitching" class="tab-content">
+            <div class="section-header">
+                <h2>Pitching Leaders</h2>
+                <p>Top Pitchers by ERA, Wins, Strikeouts, Saves, and WHIP</p>
+            </div>
+            <div id="pitchingContainer" class="table-card">
+                <div class="loading">Loading pitching data...</div>
+            </div>
+        </section>
+
+        <!-- Team Stats Section -->
+        <section id="team-stats" class="tab-content">
+            <div class="section-header">
+                <h2>Team Overview & Statistics</h2>
+                <p>Comprehensive Team Performance Breakdown</p>
+            </div>
+            <div id="teamStatsContainer" class="table-card">
+                <div class="loading">Loading team stats...</div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>USBL Baseball Simulation Dashboard &bull; Generated from OOTP 27 Almanac</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
