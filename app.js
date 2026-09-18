@@ -3,14 +3,19 @@ let trendChartInstance = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     fetch('usbl_league_data.json')
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("JSON fetch failed");
+            return res.json();
+        })
         .then(data => {
             leagueData = data;
             initDashboard();
         })
         .catch(err => {
-            console.log("Using fallback interactive dataset...");
-            initFallbackData();
+            console.error("Could not load usbl_league_data.json:", err);
+            document.querySelector('.container').insertAdjacentHTML('afterbegin', 
+                '<div class="card" style="background:#7f1d1d;color:#fecaca;margin-bottom:1rem;">⚠️ <b>Warning:</b> Could not load usbl_league_data.json. Please make sure usbl_league_data.json is in the root directory of your GitHub repository.</div>'
+            );
         });
 });
 
@@ -32,6 +37,151 @@ function initDashboard() {
     renderPitchingLeaders();
     renderStatcast();
     renderAllCharts();
+}
+
+function renderStandings() {
+    const container = document.getElementById('standingsContainer');
+    if (!leagueData || !leagueData.standings || !leagueData.standings.mlb || leagueData.standings.mlb.length === 0) {
+        container.innerHTML = '<p style="padding:1rem;">No standings data found in usbl_league_data.json.</p>';
+        return;
+    }
+
+    const mlb = leagueData.standings.mlb;
+    const keys = Object.keys(mlb[0]).filter(k => k !== 'logo_url');
+
+    let html = '<div class="table-wrapper"><table><thead><tr>';
+    keys.forEach(k => html += `<th>${k}</th>`);
+    html += '</tr></thead><tbody>';
+
+    mlb.forEach(row => {
+        html += '<tr>';
+        keys.forEach(k => {
+            let val = row[k] || '-';
+            if (k.toLowerCase() === 'team' || k.toLowerCase() === 'tm') {
+                const logo = row.logo_url ? `<img src="${row.logo_url}" class="team-logo-small" onerror="this.style.display='none'">` : '';
+                html += `<td class="team-cell">${logo}<b>${val}</b></td>`;
+            } else {
+                html += `<td>${val}</td>`;
+            }
+        });
+        html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function renderBattingLeaders() {
+    const container = document.getElementById('battingLeadersContainer');
+    if (!leagueData || !leagueData.batting_leaders || !leagueData.batting_leaders.mlb || leagueData.batting_leaders.mlb.length === 0) {
+        container.innerHTML = '<p style="padding:1rem;">No batting statistics found in usbl_league_data.json.</p>';
+        return;
+    }
+
+    const batters = leagueData.batting_leaders.mlb;
+    const keys = Object.keys(batters[0]).filter(k => k !== 'headshot_url');
+
+    let html = '<div class="table-wrapper"><table><thead><tr>';
+    keys.forEach(k => html += `<th>${k}</th>`);
+    html += '</tr></thead><tbody>';
+
+    batters.forEach(row => {
+        html += '<tr>';
+        keys.forEach(k => {
+            let val = row[k] || '-';
+            if (k.toLowerCase() === 'player' || k.toLowerCase() === 'name' || k.toLowerCase() === 'batter') {
+                const img = row.headshot_url ? `<img src="${row.headshot_url}" class="player-headshot" onerror="this.src='images/players/default.png'">` : '';
+                html += `<td class="player-cell">${img}<b>${val}</b></td>`;
+            } else {
+                html += `<td>${val}</td>`;
+            }
+        });
+        html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function renderPitchingLeaders() {
+    const container = document.getElementById('pitchingLeadersContainer');
+    if (!leagueData || !leagueData.pitching_leaders || !leagueData.pitching_leaders.mlb || leagueData.pitching_leaders.mlb.length === 0) {
+        container.innerHTML = '<p style="padding:1rem;">No pitching statistics found in usbl_league_data.json.</p>';
+        return;
+    }
+
+    const pitchers = leagueData.pitching_leaders.mlb;
+    const keys = Object.keys(pitchers[0]).filter(k => k !== 'headshot_url');
+
+    let html = '<div class="table-wrapper"><table><thead><tr>';
+    keys.forEach(k => html += `<th>${k}</th>`);
+    html += '</tr></thead><tbody>';
+
+    pitchers.forEach(row => {
+        html += '<tr>';
+        keys.forEach(k => {
+            let val = row[k] || '-';
+            if (k.toLowerCase() === 'player' || k.toLowerCase() === 'name' || k.toLowerCase() === 'pitcher') {
+                const img = row.headshot_url ? `<img src="${row.headshot_url}" class="player-headshot" onerror="this.src='images/players/default.png'">` : '';
+                html += `<td class="player-cell">${img}<b>${val}</b></td>`;
+            } else {
+                html += `<td>${val}</td>`;
+            }
+        });
+        html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function renderStatcast() {
+    const containerCards = document.getElementById('statcastCards');
+    const containerTable = document.getElementById('statcastTableBody');
+
+    if (!leagueData || !leagueData.spray_chart_data || leagueData.spray_chart_data.length === 0) {
+        containerCards.innerHTML = '<p style="padding:1rem;">No Statcast exit velocity data found.</p>';
+        containerTable.innerHTML = '<tr><td colspan="3">No data available</td></tr>';
+        return;
+    }
+
+    const evData = leagueData.spray_chart_data;
+    let maxEV = 0;
+    let maxPlayer = '';
+    let totalEV = 0;
+    let hardHitCount = 0;
+
+    evData.forEach(d => {
+        if (d.ev > maxEV) {
+            maxEV = d.ev;
+            maxPlayer = d.player;
+        }
+        totalEV += d.ev;
+        if (d.ev >= 95.0) hardHitCount++;
+    });
+
+    const avgEV = (totalEV / evData.length).toFixed(1);
+    const hardHitPct = ((hardHitCount / evData.length) * 100).toFixed(1);
+
+    containerCards.innerHTML = `
+        <div class="card"><h3>Max Exit Velocity</h3><p class="subtitle" style="font-size:1.5rem;color:#ef4444;font-weight:bold;">${maxEV} MPH</p><p>${maxPlayer}</p></div>
+        <div class="card"><h3>Hard-Hit % (95+ MPH)</h3><p class="subtitle" style="font-size:1.5rem;color:#f59e0b;font-weight:bold;">${hardHitPct}%</p><p>${hardHitCount} Batted Balls</p></div>
+        <div class="card"><h3>Total Tracked Balls</h3><p class="subtitle" style="font-size:1.5rem;color:#38bdf8;font-weight:bold;">${evData.length}</p><p>Play-by-play events</p></div>
+        <div class="card"><h3>Avg Exit Velocity</h3><p class="subtitle" style="font-size:1.5rem;color:#10b981;font-weight:bold;">${avgEV} MPH</p><p>League Average</p></div>`;
+
+    let rowsHtml = '';
+    const sorted = [...evData].sort((a,b) => b.ev - a.ev).slice(0, 100);
+    sorted.forEach(item => {
+        rowsHtml += `<tr>
+            <td class="player-cell">
+                <img src="${item.headshot_url || ''}" class="player-headshot" onerror="this.src='images/players/default.png'">
+                <b>${item.player}</b>
+            </td>
+            <td><b>${item.ev} MPH</b></td>
+            <td>${item.type}</td>
+        </tr>`;
+    });
+    containerTable.innerHTML = rowsHtml;
 }
 
 function renderAllCharts() {
@@ -59,7 +209,7 @@ function initTrendChart() {
                     fill: true
                 },
                 {
-                    label: 'On-Base Plus Slugging (OPS)',
+                    label: 'OPS',
                     data: [.850, .880, .920, .910, .950, .940, .980, 1.010, 1.035, 1.020, 1.050, 1.065, 1.080, 1.075, 1.090, 1.105, 1.095, 1.120, 1.140, 1.155],
                     borderColor: '#f59e0b',
                     backgroundColor: 'transparent',
@@ -78,10 +228,6 @@ function initTrendChart() {
     });
 }
 
-function updatePlayerTrendChart() {
-    initTrendChart();
-}
-
 function initSprayChart() {
     const ctx = document.getElementById('sprayChart').getContext('2d');
     new Chart(ctx, {
@@ -89,16 +235,11 @@ function initSprayChart() {
         data: {
             datasets: [{
                 label: 'Batted Balls (EV > 95 MPH)',
-                data: [
-                    {x: -20, y: 320}, {x: 0, y: 420}, {x: 25, y: 340}, {x: -10, y: 280},
-                    {x: 15, y: 380}, {x: -30, y: 210}, {x: 35, y: 290}, {x: 5, y: 410}
-                ],
+                data: [{x: -20, y: 320}, {x: 0, y: 420}, {x: 25, y: 340}, {x: -10, y: 280}, {x: 15, y: 380}],
                 backgroundColor: '#ef4444'
             }, {
                 label: 'Standard Hits (EV < 95 MPH)',
-                data: [
-                    {x: -15, y: 180}, {x: 10, y: 220}, {x: -5, y: 150}, {x: 20, y: 240}
-                ],
+                data: [{x: -15, y: 180}, {x: 10, y: 220}, {x: -5, y: 150}, {x: 20, y: 240}],
                 backgroundColor: '#38bdf8'
             }]
         },
@@ -106,7 +247,7 @@ function initSprayChart() {
             responsive: true,
             plugins: { legend: { labels: { color: '#f8fafc' } } },
             scales: {
-                x: { title: { display: true, text: 'Left Field <--- Spray Angle ---> Right Field', color: '#94a3b8' }, ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                x: { title: { display: true, text: 'Spray Angle', color: '#94a3b8' }, ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
                 y: { title: { display: true, text: 'Distance (Feet)', color: '#94a3b8' }, ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
             }
         }
@@ -118,9 +259,9 @@ function initWpaChart() {
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th (Walk-off)'],
+            labels: ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'],
             datasets: [{
-                label: 'Tampa Bay Armada Win Probability %',
+                label: 'Win Probability %',
                 data: [50, 42, 65, 58, 45, 52, 70, 60, 100],
                 borderColor: '#10b981',
                 backgroundColor: 'rgba(16, 185, 129, 0.15)',
@@ -144,9 +285,9 @@ function initEvDistChart() {
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['70-79 MPH', '80-89 MPH', '90-94 MPH', '95-99 MPH (Hard Hit)', '100-104 MPH', '105+ MPH (Elite)'],
+            labels: ['70-79 MPH', '80-89 MPH', '90-94 MPH', '95-99 MPH', '100-104 MPH', '105+ MPH'],
             datasets: [{
-                label: 'Batted Ball Count',
+                label: 'Count',
                 data: [42, 115, 168, 142, 68, 24],
                 backgroundColor: ['#64748b', '#64748b', '#38bdf8', '#f59e0b', '#ef4444', '#dc2626']
             }]
@@ -162,163 +303,19 @@ function initEvDistChart() {
     });
 }
 
-function renderStandings() {
-    const container = document.getElementById('standingsContainer');
-    container.innerHTML = `
-        <div class="card">
-            <h3>USBL Major League Standings</h3>
-            <table>
-                <thead><tr><th>Team</th><th>W</th><th>L</th><th>PCT</th><th>GB</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td class="team-cell">
-                            <img src="images/team_logos/tampa_bay_armada.png" class="team-logo-small" onerror="this.style.display='none'">
-                            <b>Tampa Bay Armada</b>
-                        </td>
-                        <td>103</td><td>59</td><td>.636</td><td>-</td>
-                    </tr>
-                    <tr>
-                        <td class="team-cell">
-                            <img src="images/team_logos/anaheim_halos.png" class="team-logo-small" onerror="this.style.display='none'">
-                            Anaheim Halos
-                        </td>
-                        <td>94</td><td>68</td><td>.580</td><td>9.0</td>
-                    </tr>
-                    <tr>
-                        <td class="team-cell">
-                            <img src="images/team_logos/new_york_knights.png" class="team-logo-small" onerror="this.style.display='none'">
-                            New York Knights
-                        </td>
-                        <td>88</td><td>74</td><td>.543</td><td>15.0</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>`;
-}
-
-function renderBattingLeaders() {
-    const container = document.getElementById('battingLeadersContainer');
-    container.innerHTML = `
-        <div class="card">
-            <h3>Batting Average (AVG)</h3>
-            <table>
-                <thead><tr><th>Rank</th><th>Player</th><th>Team</th><th>AVG</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td class="player-cell">
-                            <img src="images/players/nate_mahoney.png" class="player-headshot" onerror="this.src='images/players/default.png'">
-                            Nate Mahoney
-                        </td>
-                        <td>TB</td><td>.365</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td class="player-cell">
-                            <img src="images/players/jesse_wilson.png" class="player-headshot" onerror="this.src='images/players/default.png'">
-                            Jesse Wilson
-                        </td>
-                        <td>ANA</td><td>.342</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td class="player-cell">
-                            <img src="images/players/dave_gordon.png" class="player-headshot" onerror="this.src='images/players/default.png'">
-                            Dave Gordon
-                        </td>
-                        <td>TB</td><td>.328</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>`;
-}
-
-function renderPitchingLeaders() {
-    const container = document.getElementById('pitchingLeadersContainer');
-    container.innerHTML = `
-        <div class="card">
-            <h3>Earned Run Average (ERA)</h3>
-            <table>
-                <thead><tr><th>Rank</th><th>Pitcher</th><th>Team</th><th>ERA</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td class="player-cell">
-                            <img src="images/players/mike_pearsall.png" class="player-headshot" onerror="this.src='images/players/default.png'">
-                            Mike Pearsall
-                        </td>
-                        <td>TB</td><td>2.84</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td class="player-cell">
-                            <img src="images/players/chris_vance.png" class="player-headshot" onerror="this.src='images/players/default.png'">
-                            Chris Vance
-                        </td>
-                        <td>ANA</td><td>3.12</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>`;
-}
-
-function renderStatcast() {
-    const container = document.getElementById('statcastCards');
-    container.innerHTML = `
-        <div class="card"><h3>Max Exit Velocity</h3><p class="subtitle" style="font-size:1.5rem;color:#ef4444;font-weight:bold;">111.3 MPH</p><p>Jesse Wilson (Halos)</p></div>
-        <div class="card"><h3>Hard-Hit % (95+ MPH)</h3><p class="subtitle" style="font-size:1.5rem;color:#f59e0b;font-weight:bold;">48.2%</p><p>Tampa Bay Armada</p></div>
-        <div class="card"><h3>Longest Home Run</h3><p class="subtitle" style="font-size:1.5rem;color:#38bdf8;font-weight:bold;">448 FT</p><p>Nate Mahoney (Armada)</p></div>
-        <div class="card"><h3>Avg Exit Velocity</h3><p class="subtitle" style="font-size:1.5rem;color:#10b981;font-weight:bold;">91.4 MPH</p><p>League Average</p></div>`;
-
-    document.getElementById('statcastTableBody').innerHTML = `
-        <tr>
-            <td class="player-cell">
-                <img src="images/players/jesse_wilson.png" class="player-headshot" onerror="this.src='images/players/default.png'">
-                Jesse Wilson
-            </td>
-            <td>Anaheim Halos</td><td><b>111.3 MPH</b></td><td>Line Drive</td><td>Double</td><td>52.4%</td>
-        </tr>
-        <tr>
-            <td class="player-cell">
-                <img src="images/players/nate_mahoney.png" class="player-headshot" onerror="this.src='images/players/default.png'">
-                Nate Mahoney
-            </td>
-            <td>Tampa Bay Armada</td><td><b>110.0 MPH</b></td><td>Flyball</td><td>Home Run (420 ft)</td><td>51.1%</td>
-        </tr>
-        <tr>
-            <td class="player-cell">
-                <img src="images/players/dave_gordon.png" class="player-headshot" onerror="this.src='images/players/default.png'">
-                Dave Gordon
-            </td>
-            <td>Tampa Bay Armada</td><td><b>108.8 MPH</b></td><td>Line Drive</td><td>Double</td><td>47.8%</td>
-        </tr>`;
-}
-
 function lookupMatchup() {
-    const pitcher = document.getElementById('pitcherInput').value || 'Mike Pearsall';
-    const batter = document.getElementById('batterInput').value || 'Elmer Aguilera';
+    const pitcher = document.getElementById('pitcherInput').value || 'Pitcher';
+    const batter = document.getElementById('batterInput').value || 'Batter';
     
     document.getElementById('matchupResult').innerHTML = `
         <div class="card" style="background-color:#0f172a; border-color:#0284c7;">
-            <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
-                <img src="images/players/mike_pearsall.png" class="player-headshot" style="width:60px;height:60px;" onerror="this.src='images/players/default.png'">
-                <div>
-                    <h3 style="margin:0;">Matchup Analysis: ${pitcher} (P) vs. ${batter} (B)</h3>
-                    <p class="card-subtitle" style="margin:0;">Career Head-to-Head Plate Appearance Breakdown</p>
-                </div>
-                <img src="images/players/elmer_aguilera.png" class="player-headshot" style="width:60px;height:60px;margin-left:auto;" onerror="this.src='images/players/default.png'">
-            </div>
+            <h3>Matchup Analysis: ${pitcher} (P) vs. ${batter} (B)</h3>
+            <p class="card-subtitle">Head-to-Head Plate Appearance Breakdown</p>
             <div class="grid-4 mt-4">
                 <div><b>Plate Appearances:</b> 18 PA</div>
                 <div><b>Hits / At-Bats:</b> 5 H / 15 AB</div>
                 <div><b>Batting Average:</b> .333 AVG</div>
                 <div><b>Walks / Strikeouts:</b> 3 BB / 4 SO</div>
-            </div>
-            <div class="grid-4 mt-4">
-                <div><b>Extra-Base Hits:</b> 2 2B, 1 HR</div>
-                <div><b>Max Exit Velocity:</b> 106.4 MPH</div>
-                <div><b>Average Exit Velocity:</b> 92.1 MPH</div>
-                <div><b>Hard-Hit Rate:</b> 46.2%</div>
             </div>
         </div>`;
 }
@@ -328,8 +325,4 @@ function filterTables() {
     document.querySelectorAll('tbody tr').forEach(row => {
         row.style.display = row.innerText.toLowerCase().includes(val) ? '' : 'none';
     });
-}
-
-function initFallbackData() {
-    initDashboard();
 }
